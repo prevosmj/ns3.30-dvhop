@@ -502,15 +502,42 @@ namespace ns3 {
       NS_LOG_DEBUG ("sender:           " << sender);
       NS_LOG_DEBUG ("receiver:         " << receiver);
 
-
       FloodingHeader fHeader;
       packet->RemoveHeader (fHeader);
       NS_LOG_DEBUG ("Update the entry for: " << fHeader.GetBeaconAddress ());
       UpdateHopsTo (fHeader.GetBeaconAddress (), fHeader.GetHopCount () + 1, fHeader.GetXPosition (), fHeader.GetYPosition ());
-      std::cout << "---DEBUG: CHECK---" << std::endl;
+      std::cout << "---DEBUG: HopCount: " << fHeader.GetHopCount() + 1 << " | XPos: " << fHeader.GetXPosition() << " | YPos: " << fHeader.GetYPosition() << std::endl;
+      
+      uint32_t diff;
+      uint32_t newx = 0; 
+      uint32_t newy = 0;
 
+      if(fHeader.GetBeaconAddress().Get() > receiver.Get()){
+        diff = fHeader.GetBeaconAddress().Get() - receiver.Get(); //Left and Up
+        newy = fHeader.GetYPosition() - (50 * std::floor(diff / 10));
+        if((fHeader.GetBeaconAddress().Get() % 10) <= (diff % 10)){
+          newy -= 50;
+          newx = fHeader.GetXPosition() + (50 * ((diff % 10) + ((fHeader.GetBeaconAddress().Get() % 10))));
+          std::cout << "DEBUG--- Y decrease 50, X increase " << 50 * ((diff % 10) + ((fHeader.GetBeaconAddress().Get() % 10))) << std::endl;
+        } else {
+          newx = fHeader.GetXPosition() - (50 * (diff % 10));
+          std::cout << "DEBUG--- X decrease " << 50 * (diff % 10)<< std::endl;
+        }
+      }else{
+        diff = receiver.Get() - fHeader.GetBeaconAddress().Get(); //Right and Down
+        newy = fHeader.GetYPosition() + (50 * std::floor(diff / 10));
+        if((fHeader.GetBeaconAddress().Get() % 10) <= (diff % 10)){
+          newy += 50;
+          newx = fHeader.GetXPosition() - 50 * (((fHeader.GetBeaconAddress().Get() % 10)) - (diff % 10));
+          std::cout << "DEBUG--- Y increase 50, X decrease " << 50 * (((fHeader.GetBeaconAddress().Get() % 10)) - (diff % 10)) << std::endl;
+        } else {
+          newx = fHeader.GetXPosition() + (50 * (diff % 10));
+          std::cout << "DEBUG--- X increase " << 50 * (diff % 10)<< std::endl;
+        }
+      }
 
-
+      std::cout << "Difference: " << diff << std::endl;
+      std::cout << "XPos: " << newx << " | YPos: " << newy << std::endl;
     }
 
     Ptr<Socket>

@@ -16,6 +16,7 @@
 #include "distance-table.h"
 
 #include <map>
+#include <cmath>
 
 
 namespace ns3 {
